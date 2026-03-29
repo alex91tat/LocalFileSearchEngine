@@ -1,11 +1,11 @@
 package com.searchengine;
 
-public class Main {
-    public static void main(String[] args) {
-        System.out.printf("Hello and welcome!");
+import com.searchengine.config.Config;
 
-        for (int i = 1; i <= 5; i++) {
-            System.out.println("i = " + i);
-        }
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Config config = Config.load("config.json");
+        config.validate();
+        System.out.println(config);
     }
 }
