@@ -1,0 +1,8 @@
+{
+  "rootDirectory": "/home/alext",
+  "databasePath": "index.db",
+  "ignoredDirectories": [".git", "node_modules", "target", ".idea", ".mvn"],
+  "ignoredExtensions": ["class", "jar", "exe", "bin", "zip", "tar", "gz"],
+  "textExtensions": ["txt", "md", "java", "py", "js", "ts", "html", "css", "xml", "json", "yaml", "yml", "csv", "log"],
+  "reportFormat": "txt"
+}
