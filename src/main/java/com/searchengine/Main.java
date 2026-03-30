@@ -1,7 +1,12 @@
 package com.searchengine;
 
 import com.searchengine.config.Config;
+import com.searchengine.model.IndexReport;
 import com.searchengine.repository.DatabaseManager;
+import com.searchengine.repository.FileRepository;
+import com.searchengine.indexing.*;
+
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -10,6 +15,21 @@ public class Main {
 
         DatabaseManager db = new DatabaseManager(config.getDatabasePath());
         db.initialize();
+
+        FileRepository repository = new FileRepository(db.getConnection());
+        FileFilter filter = new FileFilter(config);
+        FileCrawler crawler = new FileCrawler(filter);
+        ChangeDetector changeDetector = new ChangeDetector(repository);
+        PlainTextExtractor extractor = new PlainTextExtractor(config.getTextExtensions());
+
+        IndexingService indexingService = new IndexingService(
+                config, crawler, filter,
+                List.of(extractor),
+                changeDetector, repository
+        );
+
+        IndexReport report = indexingService.index();
+        System.out.println(report.generateReport());
 
         db.close();
     }
