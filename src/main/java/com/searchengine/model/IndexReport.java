@@ -88,6 +88,10 @@ public class IndexReport {
     }
 
     public int getErrors() {
-        return errors; }
-    public List<String> getErrorLog(){ return errorLog; }
+        return errors;
+    }
+
+    public List<String> getErrorLog() {
+        return errorLog;
+    }
 }
