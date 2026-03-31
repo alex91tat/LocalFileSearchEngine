@@ -26,8 +26,12 @@ public class SearchResult {
 
     @Override
     public String toString() {
+        String previewText = (preview == null || preview.isBlank())
+                ? "Preview not available"
+                : preview.replace("\n", "\n     ");
+
         return String.format("[%d] %s — %s (%s)%n     Preview: %s", rank, fileRecord.getName(), fileRecord.getPath(),
-                formatSize(fileRecord.getSize()), preview.replace("\n", "\n     "));
+                formatSize(fileRecord.getSize()), previewText);
     }
 
 
