@@ -14,14 +14,18 @@ public class DatabaseManager {
     }
 
     public void initialize() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
-        try (Statement pragma = connection.createStatement()) {
-            pragma.execute("PRAGMA journal_mode=WAL");
+        try {
+            connection = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
+            try (Statement pragma = connection.createStatement()) {
+                pragma.execute("PRAGMA journal_mode=WAL");
+            }
+            System.out.println("[DB] Database initialized at: " + databasePath);
+            createTables();
+            System.out.println("[DB] Schema ready.");
+        } catch (SQLException e) {
+            throw new SQLException("Failed to initialize database at '"
+                    + databasePath + "': " + e.getMessage(), e);
         }
-
-        System.out.println("[DB] Database initialized at: " + databasePath);
-        createTables();
-        System.out.println("[DB] Schema ready.");
     }
 
     public void close() {

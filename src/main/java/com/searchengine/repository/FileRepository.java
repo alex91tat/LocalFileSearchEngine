@@ -14,7 +14,14 @@ public class FileRepository {
         this.connection = connection;
     }
 
+    private void checkConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Database connection is not available");
+        }
+    }
+
     public void save(FileRecord record) throws SQLException {
+        checkConnection();
         String insertFile = """
                 INSERT INTO files (path, name, extension, size, last_modified, preview)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -43,6 +50,7 @@ public class FileRepository {
     }
 
     public void update(FileRecord record) throws SQLException {
+        checkConnection();
         String updateFile = """
                 UPDATE files
                 SET name = ?, extension = ?, size = ?, last_modified = ?, preview = ?
@@ -74,6 +82,7 @@ public class FileRepository {
     }
 
     public void delete(String path) throws SQLException {
+        checkConnection();
         try (PreparedStatement stmtFile = connection.prepareStatement(
                 "DELETE FROM files WHERE path = ?");
              PreparedStatement stmtFts = connection.prepareStatement(
@@ -88,6 +97,7 @@ public class FileRepository {
     }
 
     public FileRecord findByPath(String path) throws SQLException {
+        checkConnection();
         String sql = "SELECT * FROM files WHERE path = ?";
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -102,6 +112,7 @@ public class FileRepository {
     }
 
     public List<SearchResult> search(String query) throws SQLException {
+        checkConnection();
         List<SearchResult> results = new ArrayList<>();
 
         String ftsSQL = """
