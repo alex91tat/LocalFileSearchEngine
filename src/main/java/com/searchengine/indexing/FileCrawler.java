@@ -16,6 +16,7 @@ public class FileCrawler {
         this.fileFilter = fileFilter;
     }
 
+    // Start crawling from root and collect all indexable file paths
     public List<Path> crawl(String rootDirectory, IndexReport report) {
         List<Path> discoveredFiles = new ArrayList<>();
         Set<Path> visitedRealPaths = new HashSet<>();
@@ -46,6 +47,7 @@ public class FileCrawler {
                     return FileVisitResult.CONTINUE;
                 }
 
+                // Skip ignored directories before descending into them
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     report.incrementFound();
@@ -59,6 +61,7 @@ public class FileCrawler {
                     return FileVisitResult.CONTINUE;
                 }
 
+                // Log the error and keep going — one bad file shouldn't stop the whole run
                 @Override
                 public FileVisitResult visitFileFailed(Path file, IOException exc) {
                     System.err.println("[Crawler] Cannot access: " + file + " — " + exc.getMessage());

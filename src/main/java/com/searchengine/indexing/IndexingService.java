@@ -29,6 +29,7 @@ public class IndexingService {
         this.repository = repository;
     }
 
+    // Run the full pipeline: crawl → detect changes → extract → save
     public IndexReport index() {
         IndexReport report = new IndexReport();
         System.out.println("[Indexer] Starting indexing from: " + config.getRootDirectory());
@@ -86,6 +87,7 @@ public class IndexingService {
         }
     }
 
+    // Loop through extractors and return the first one that handles this extension
     private Extractor findExtractor(String extension) {
         for (Extractor extractor : extractors) {
             if (extractor.supports(extension)) {
@@ -95,6 +97,7 @@ public class IndexingService {
         return null;
     }
 
+    // No extractor found — store metadata only so file still appears in name searches
     private void indexMetadataOnly(Path filePath, String extension, FileStatus status, IndexReport report) {
         try {
             long size = java.nio.file.Files.size(filePath);

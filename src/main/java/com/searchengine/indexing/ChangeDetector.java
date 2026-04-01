@@ -20,6 +20,7 @@ public class ChangeDetector {
         this.repository = repository;
     }
 
+    // Compare disk timestamp with stored timestamp to avoid unnecessary re-indexing
     public FileStatus getStatus(Path filePath) {
         try {
             FileRecord stored = repository.findByPath(filePath.toAbsolutePath().toString());
