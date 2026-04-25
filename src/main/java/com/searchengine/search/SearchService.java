@@ -8,9 +8,11 @@ import java.util.List;
 
 public class SearchService {
     private final FileRepository repository;
+    private final QueryParser parser;
 
     public SearchService(FileRepository repository) {
         this.repository = repository;
+        this.parser = new QueryParser();
     }
 
     public List<SearchResult> search(String rawQuery) {
@@ -18,32 +20,17 @@ public class SearchService {
             return Collections.emptyList();
         }
 
-        String sanitized = sanitize(rawQuery);
-
-        if (sanitized.isBlank()) {
-            return Collections.emptyList();
-        }
+        ParsedQuery parsedQuery = parser.parse(rawQuery);
 
         try {
-            List<SearchResult> results = repository.search(sanitized);
-
+            List<SearchResult> results = repository.search(parsedQuery);
             if (results.isEmpty()) {
                 System.out.println("No results found for: \"" + rawQuery + "\"");
             }
-
             return results;
-
         } catch (SQLException e) {
             System.err.println("[Search] Database error: " + e.getMessage());
             return Collections.emptyList();
         }
-    }
-
-    private String sanitize(String query) {
-        // remove FTS5 special characters that could cause syntax errors
-        return query
-                .replaceAll("[\"'\\-:^*]", " ")  // remove FTS5 operators
-                .replaceAll("\\s+", " ")           // collapse multiple spaces
-                .trim();
     }
 }
