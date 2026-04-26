@@ -1,8 +1,8 @@
 {
-  "rootDirectory": "/home/alext",
+  "rootDirectory": "/home/alext/Documents",
   "databasePath": "index.db",
   "ignoredDirectories": [".git", "node_modules", "target", ".idea", ".mvn"],
-  "ignoredExtensions": ["class", "jar", "exe", "bin", "zip", "tar", "gz"],
+  "ignoredExtensions": ["class", "jar", "exe", "bin", "zip", "tar", "gz", "db", "db-shm", "db-wal"],
   "textExtensions": ["txt", "md", "java", "py", "js", "ts", "html", "css", "xml", "json", "yaml", "yml", "csv", "log"],
   "reportFormat": "txt"
 }
