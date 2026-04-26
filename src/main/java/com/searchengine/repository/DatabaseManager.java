@@ -54,7 +54,8 @@ public class DatabaseManager {
                         extension     TEXT,
                         size          INTEGER,
                         last_modified INTEGER,
-                        preview       TEXT
+                        preview       TEXT,
+                        path_score    REAL    DEFAULT 0.0
                     )
                     """);
 
