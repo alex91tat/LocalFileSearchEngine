@@ -3,6 +3,9 @@ package com.searchengine.cli;
 import com.searchengine.indexing.IndexingService;
 import com.searchengine.model.IndexReport;
 import com.searchengine.model.SearchResult;
+import com.searchengine.search.AlphabeticalRanking;
+import com.searchengine.search.DateAccessedRanking;
+import com.searchengine.search.RelevanceRanking;
 import com.searchengine.search.SearchService;
 import java.util.List;
 import java.util.Scanner;
@@ -47,6 +50,7 @@ public class CLI {
     }
 
     private void handleSearch() {
+        selectRankingStrategy();
         System.out.println("Type your query ('back' to return to main menu):");
 
         while (true) {
@@ -63,6 +67,33 @@ public class CLI {
 
             List<SearchResult> results = searchService.search(query);
             displayResults(results, query);
+        }
+    }
+
+    private void selectRankingStrategy() {
+        System.out.println("\nSelect ranking strategy:");
+        System.out.println("(1) Relevance (default)");
+        System.out.println("(2) Alphabetical");
+        System.out.println("(3) Date (most recent first)");
+        System.out.print("Choice: ");
+
+        String choice = scanner.nextLine().trim();
+
+        switch (choice) {
+            case "1" -> {
+                searchService.setRankingStrategy(new RelevanceRanking());
+                System.out.println("Strategy set to: Relevance");
+            }
+            case "2" -> {
+                searchService.setRankingStrategy(new AlphabeticalRanking());
+                System.out.println("Strategy set to: Alphabetical");
+            }
+            case "3" -> {
+                searchService.setRankingStrategy(new DateAccessedRanking());
+                System.out.println("Strategy set to: Date (most recent first)");
+            }
+            default -> System.out.println("Invalid choice, keeping current strategy: "
+                    + searchService.getRankingStrategy().getName());
         }
     }
 
