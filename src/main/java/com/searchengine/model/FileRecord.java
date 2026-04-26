@@ -11,8 +11,11 @@ public class FileRecord {
     private String content;
     private String preview;
 
+    private double pathScore;
 
-    public FileRecord(String path, String name, String extension, long size, long lastModified, String content, String preview) {
+
+    public FileRecord(String path, String name, String extension, long size, long lastModified, String content,
+                      String preview, double pathScore) {
         this.path = path;
         this.name = name;
         this.extension = extension;
@@ -20,6 +23,7 @@ public class FileRecord {
         this.lastModified = lastModified;
         this.content = content;
         this.preview = preview;
+        this.pathScore = pathScore;
     }
 
     public long getId() {
@@ -84,6 +88,14 @@ public class FileRecord {
 
     public void setPreview(String preview) {
         this.preview = preview;
+    }
+
+    public double getPathScore() {
+        return pathScore;
+    }
+
+    public void setPathScore(double pathScore) {
+        this.pathScore = pathScore;
     }
 
     @Override
