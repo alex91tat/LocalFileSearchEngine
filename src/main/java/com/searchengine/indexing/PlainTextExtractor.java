@@ -45,7 +45,7 @@ public class PlainTextExtractor implements Extractor {
         }
 
         return new FileRecord(filePath.toAbsolutePath().toString(), fileName, extension, size, lastModified,
-                content, preview);
+                content, preview, 0.0);
     }
 
     private String buildPreview(String content) {
