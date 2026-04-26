@@ -24,8 +24,8 @@ public class FileRepository {
     public void save(FileRecord record) throws SQLException {
         checkConnection();
         String insertFile = """
-                INSERT INTO files (path, name, extension, size, last_modified, preview)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO files (path, name, extension, size, last_modified, preview, path_score)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         String insertFts = """
@@ -42,6 +42,7 @@ public class FileRepository {
             stmtFile.setLong(4, record.getSize());
             stmtFile.setLong(5, record.getLastModified());
             stmtFile.setString(6, record.getPreview());
+            stmtFile.setDouble(7, record.getPathScore());
             stmtFile.executeUpdate();
 
             stmtFts.setString(1, record.getPath());
@@ -54,7 +55,7 @@ public class FileRepository {
         checkConnection();
         String updateFile = """
                 UPDATE files
-                SET name = ?, extension = ?, size = ?, last_modified = ?, preview = ?
+                SET name = ?, extension = ?, size = ?, last_modified = ?, preview = ?, path_score = ?
                 WHERE path = ?
                 """;
 
@@ -70,7 +71,8 @@ public class FileRepository {
             stmtFile.setLong(3, record.getSize());
             stmtFile.setLong(4, record.getLastModified());
             stmtFile.setString(5, record.getPreview());
-            stmtFile.setString(6, record.getPath());
+            stmtFile.setDouble(6, record.getPathScore());
+            stmtFile.setString(7, record.getPath());
             stmtFile.executeUpdate();
 
             stmtDeleteFts.setString(1, record.getPath());
@@ -135,18 +137,19 @@ public class FileRepository {
         int rank = 1;
 
         String ftsSQL = """
-            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
             FROM files_fts fts
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
-            ORDER BY rank
+            ORDER BY path_score DESC, rank ASC
             LIMIT 20
             """;
 
         String nameSQL = """
-            SELECT path, name, extension, size, last_modified, preview
+            SELECT path, name, extension, size, last_modified, preview, path_score
             FROM files
             WHERE name LIKE ?
+            ORDER BY path_score DESC
             LIMIT 10
             """;
 
@@ -181,11 +184,11 @@ public class FileRepository {
         String ftsQuery = String.join(" ", contentTerms);
 
         String sql = """
-            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
             FROM files_fts fts
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
-            ORDER BY rank
+            ORDER BY path_score DESC, rank ASC
             LIMIT 20
             """;
 
@@ -206,14 +209,14 @@ public class FileRepository {
 
         // build: WHERE path LIKE ? AND path LIKE ? ...
         StringBuilder sql = new StringBuilder("""
-            SELECT path, name, extension, size, last_modified, preview
+            SELECT path, name, extension, size, last_modified, preview, path_score
             FROM files WHERE 1=1
             """);
 
         for (int i = 0; i < pathTerms.size(); i++) {
             sql.append(" AND path LIKE ?");
         }
-        sql.append(" LIMIT 20");
+        sql.append(" ORDER BY path_score DESC LIMIT 20");
 
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             // set each path term as a parameter
@@ -236,21 +239,16 @@ public class FileRepository {
         String ftsQuery = String.join(" ", contentTerms);
 
         StringBuilder sql = new StringBuilder("""
-        SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview
-        FROM files_fts fts
-        JOIN files f ON fts.path = f.path
-        WHERE files_fts MATCH ?
-        """);
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
+            FROM files_fts fts
+            JOIN files f ON fts.path = f.path
+            WHERE files_fts MATCH ?
+            """);
 
         for (int i = 0; i < pathTerms.size(); i++) {
             sql.append(" AND f.path LIKE ?");
         }
-        sql.append(" ORDER BY rank LIMIT 20");
-
-        // DEBUG — remove after testing
-        System.out.println("[DEBUG] SQL: " + sql);
-        System.out.println("[DEBUG] ftsQuery: " + ftsQuery);
-        System.out.println("[DEBUG] pathTerms: " + pathTerms);
+        sql.append(" ORDER BY path_score DESC, rank ASC LIMIT 20");
 
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             // first parameter is the FTS query
@@ -277,7 +275,8 @@ public class FileRepository {
                 rs.getLong("size"),
                 rs.getLong("last_modified"),
                 "",
-                rs.getString("preview")
+                rs.getString("preview"),
+                rs.getDouble("path_score")
         );
     }
 }
