@@ -142,7 +142,7 @@ public class FileRepository {
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
             ORDER BY path_score DESC, rank ASC
-            LIMIT 20
+            LIMIT 100
             """;
 
         String nameSQL = """
@@ -189,7 +189,7 @@ public class FileRepository {
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
             ORDER BY path_score DESC, rank ASC
-            LIMIT 20
+            LIMIT 100
             """;
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -216,7 +216,7 @@ public class FileRepository {
         for (int i = 0; i < pathTerms.size(); i++) {
             sql.append(" AND path LIKE ?");
         }
-        sql.append(" ORDER BY path_score DESC LIMIT 20");
+        sql.append(" ORDER BY path_score DESC LIMIT 100");
 
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             // set each path term as a parameter
@@ -248,7 +248,7 @@ public class FileRepository {
         for (int i = 0; i < pathTerms.size(); i++) {
             sql.append(" AND f.path LIKE ?");
         }
-        sql.append(" ORDER BY path_score DESC, rank ASC LIMIT 20");
+        sql.append(" ORDER BY path_score DESC, rank ASC LIMIT 100");
 
         try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
             // first parameter is the FTS query
