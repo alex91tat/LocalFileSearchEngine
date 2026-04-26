@@ -19,6 +19,8 @@ public class IndexingService {
     private final ChangeDetector changeDetector;
     private final FileRepository repository;
 
+    private final PathScorer pathScorer;
+
     public IndexingService(Config config, FileCrawler crawler, FileFilter filter, List<Extractor> extractors,
                            ChangeDetector changeDetector, FileRepository repository) {
         this.config = config;
@@ -27,6 +29,7 @@ public class IndexingService {
         this.extractors = extractors;
         this.changeDetector = changeDetector;
         this.repository = repository;
+        this.pathScorer = new PathScorer();
     }
 
     // Run the full pipeline: crawl → detect changes → extract → save
@@ -70,6 +73,17 @@ public class IndexingService {
             }
 
             FileRecord record = extractor.extract(filePath);
+            // Compute path score at index time
+            double score = pathScorer.score(
+                    record.getPath(),
+                    record.getExtension(),
+                    record.getLastModified(),
+                    record.getSize(),
+                    config.getRootDirectory()
+            );
+            record.setPathScore(score);
+
+            // Save or update in database
             if (status == FileStatus.NEW) {
                 repository.save(record);
                 report.incrementIndexed();
@@ -111,8 +125,19 @@ public class IndexingService {
                     size,
                     lastModified,
                     "",
-                    ""
+                    "",
+                    0.0
             );
+
+            // compute score for metadata-only files
+            double score = pathScorer.score(
+                    filePath.toAbsolutePath().toString(),
+                    extension,
+                    lastModified,
+                    size,
+                    config.getRootDirectory()
+            );
+            record.setPathScore(score);
 
             if (status == FileStatus.NEW) {
                 repository.save(record);
