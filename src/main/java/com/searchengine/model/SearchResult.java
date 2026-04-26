@@ -24,6 +24,10 @@ public class SearchResult {
         return rank;
     }
 
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
     @Override
     public String toString() {
         String previewText = (preview == null || preview.isBlank())
