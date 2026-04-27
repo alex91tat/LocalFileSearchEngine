@@ -6,6 +6,7 @@ import com.searchengine.model.SearchResult;
 import com.searchengine.search.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class CLI {
@@ -14,13 +15,16 @@ public class CLI {
     private final Scanner scanner;
 
     private final SearchHistoryTracker historyTracker;
+    private final AliasManager aliasManager;
 
 
-    public CLI(IndexingService indexingService, SearchService searchService, SearchHistoryTracker historyTracker) {
+    public CLI(IndexingService indexingService, SearchService searchService,
+               SearchHistoryTracker historyTracker, AliasManager aliasManager) {
         this.indexingService = indexingService;
         this.searchService = searchService;
         this.scanner = new Scanner(System.in);
         this.historyTracker = historyTracker;
+        this.aliasManager = aliasManager;
     }
 
     public void start() {
@@ -33,6 +37,7 @@ public class CLI {
             switch (command) {
                 case "index"  -> handleIndex();
                 case "search" -> handleSearch();
+                case "alias"  -> handleAlias();
                 case "exit"   -> {
                     System.out.println("Bye!");
                     return;
@@ -41,6 +46,42 @@ public class CLI {
                         "Unknown command. Use: 'index' | 'search' | 'exit'"
                 );
             }
+        }
+    }
+
+    private void handleAlias() {
+        System.out.println("Alias commands: 'add' | 'remove' | 'list'");
+        System.out.print("Choice: ");
+        String choice = scanner.nextLine().trim().toLowerCase();
+
+        switch (choice) {
+            case "add" -> {
+                System.out.print("Alias name (without @): ");
+                String name = scanner.nextLine().trim();
+                System.out.print("Query: ");
+                String query = scanner.nextLine().trim();
+                if (aliasManager.add(name, query)) {
+                    System.out.println("Alias saved: @" + name + " → " + query);
+                }
+            }
+            case "remove" -> {
+                System.out.print("Alias name (without @): ");
+                String name = scanner.nextLine().trim();
+                if (aliasManager.remove(name)) {
+                    System.out.println("Alias removed: @" + name);
+                }
+            }
+            case "list" -> {
+                Map<String, String> aliases = aliasManager.list();
+                if (aliases.isEmpty()) {
+                    System.out.println("No aliases defined yet.");
+                } else {
+                    System.out.println("\nDefined aliases:");
+                    aliases.forEach((name, query) ->
+                            System.out.println("  @" + name + "  →  " + query));
+                }
+            }
+            default -> System.out.println("Unknown alias command.");
         }
     }
 
@@ -125,6 +166,6 @@ public class CLI {
         System.out.println("------------------------------------");
         System.out.println("|       Local File Search Engine   |");
         System.out.println("------------------------------------");
-        System.out.println("Commands: 'index' | 'search' | 'exit'");
+        System.out.println("Commands: 'index' | 'search' | 'alias' | 'exit'");
     }
 }
