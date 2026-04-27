@@ -7,7 +7,7 @@ public class QueryParser {
     private String sanitize(String query) {
         // remove FTS5 special characters that could cause syntax errors
         return query
-                .replaceAll("[\"'\\-:^*]", " ")  // remove FTS5 operators
+                .replaceAll("[\"'\\-:^*.]", " ")  // remove FTS5 operators
                 .replaceAll("\\s+", " ")           // collapse multiple spaces
                 .trim();
     }
@@ -18,16 +18,18 @@ public class QueryParser {
         String[] tokens = rawQuery.trim().split("\\s+");
 
         for (String token : tokens) {
-           if (token.startsWith("path:")) {
-               pathTerms.add(sanitize(token.substring("path:".length())));
-           }
-           else if (token.startsWith("content:")) {
-               contentTerms.add(sanitize(token.substring("content:".length())));
-           }
-           else {
-               // plain word, treat as content term
-               contentTerms.add(sanitize(token));
-           }
+            if (token.startsWith("path:")) {
+                String value = token.substring("path:".length());
+                // don't sanitize path terms — dots are valid in paths
+                if (!value.isBlank()) {
+                    pathTerms.add(value.trim());
+                }
+            } else if (token.startsWith("content:")) {
+                String value = token.substring("content:".length());
+                contentTerms.add(sanitize(value));
+            } else {
+                contentTerms.add(sanitize(token));
+            }
         }
 
         return new ParsedQuery(contentTerms, pathTerms, rawQuery);
