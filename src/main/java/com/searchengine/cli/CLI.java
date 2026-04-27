@@ -3,10 +3,8 @@ package com.searchengine.cli;
 import com.searchengine.indexing.IndexingService;
 import com.searchengine.model.IndexReport;
 import com.searchengine.model.SearchResult;
-import com.searchengine.search.AlphabeticalRanking;
-import com.searchengine.search.DateAccessedRanking;
-import com.searchengine.search.RelevanceRanking;
-import com.searchengine.search.SearchService;
+import com.searchengine.search.*;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -15,11 +13,14 @@ public class CLI {
     private final SearchService searchService;
     private final Scanner scanner;
 
+    private final SearchHistoryTracker historyTracker;
 
-    public CLI(IndexingService indexingService, SearchService searchService) {
+
+    public CLI(IndexingService indexingService, SearchService searchService, SearchHistoryTracker historyTracker) {
         this.indexingService = indexingService;
         this.searchService = searchService;
         this.scanner = new Scanner(System.in);
+        this.historyTracker = historyTracker;
     }
 
     public void start() {
@@ -57,12 +58,18 @@ public class CLI {
             System.out.print("Search: ");
             String query = scanner.nextLine().trim();
 
-            if (query.equalsIgnoreCase("back")) {
-                return;
-            }
+            if (query.equalsIgnoreCase("back")) return;
+            if (query.isBlank()) continue;
 
-            if (query.isBlank()) {
-                continue;
+            // show suggestions
+            List<String> suggestions = historyTracker.getSuggestions(query);
+            if (!suggestions.isEmpty()) {
+                System.out.println("Similar past searches: " + suggestions);
+                System.out.print("Refine query (or Enter to search \"" + query + "\"): ");
+                String refined = scanner.nextLine().trim();
+                if (!refined.isBlank()) {
+                    query = refined;
+                }
             }
 
             List<SearchResult> results = searchService.search(query);
@@ -81,7 +88,7 @@ public class CLI {
 
         switch (choice) {
             case "1" -> {
-                searchService.setRankingStrategy(new RelevanceRanking());
+                searchService.setRankingStrategy(new RelevanceRanking(historyTracker));
                 System.out.println("Strategy set to: Relevance");
             }
             case "2" -> {
