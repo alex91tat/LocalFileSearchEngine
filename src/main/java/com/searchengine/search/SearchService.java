@@ -3,6 +3,7 @@ package com.searchengine.search;
 import com.searchengine.model.SearchResult;
 import com.searchengine.repository.FileRepository;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,17 +12,19 @@ public class SearchService {
     private final QueryParser parser;
 
     private RankingStrategy rankingStrategy;
+    private final List<SearchObserver> observers = new ArrayList<>();
 
     public SearchService(FileRepository repository) {
         this.repository = repository;
         this.parser = new QueryParser();
-        this.rankingStrategy = new RelevanceRanking();
+        this.rankingStrategy = null;
     }
 
     public List<SearchResult> search(String rawQuery) {
         if (rawQuery == null || rawQuery.isBlank()) {
             return Collections.emptyList();
         }
+        notifyObservers(rawQuery);
 
         ParsedQuery parsedQuery = parser.parse(rawQuery);
 
@@ -50,5 +53,15 @@ public class SearchService {
 
     public RankingStrategy getRankingStrategy() {
         return rankingStrategy;
+    }
+
+    public void addObserver(SearchObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notifyObservers(String query) {
+        for (SearchObserver observer : observers) {
+            observer.onSearch(query);
+        }
     }
 }
