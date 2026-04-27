@@ -5,6 +5,8 @@ import com.searchengine.config.Config;
 import com.searchengine.indexing.*;
 import com.searchengine.repository.DatabaseManager;
 import com.searchengine.repository.FileRepository;
+import com.searchengine.search.RelevanceRanking;
+import com.searchengine.search.SearchHistoryTracker;
 import com.searchengine.search.SearchService;
 import java.util.List;
 
@@ -28,7 +30,12 @@ public class Main {
                 detector, repository);
 
         SearchService searchService = new SearchService(repository);
-        CLI cli = new CLI(indexingService, searchService);
+
+        SearchHistoryTracker historyTracker = new SearchHistoryTracker();
+        searchService.addObserver(historyTracker);
+        searchService.setRankingStrategy(new RelevanceRanking(historyTracker));
+
+        CLI cli = new CLI(indexingService, searchService, historyTracker);
         cli.start();
 
         db.close();
