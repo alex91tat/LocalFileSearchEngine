@@ -13,11 +13,13 @@ public class SearchService {
 
     private RankingStrategy rankingStrategy;
     private final List<SearchObserver> observers = new ArrayList<>();
+    private final AliasManager aliasManager;
 
-    public SearchService(FileRepository repository) {
+    public SearchService(FileRepository repository, AliasManager aliasManager) {
         this.repository = repository;
         this.parser = new QueryParser();
-        this.rankingStrategy = null;
+        this.rankingStrategy = null; // set from Main
+        this.aliasManager = aliasManager;
     }
 
     public List<SearchResult> search(String rawQuery) {
@@ -26,7 +28,9 @@ public class SearchService {
         }
         notifyObservers(rawQuery);
 
-        ParsedQuery parsedQuery = parser.parse(rawQuery);
+        String expandedQuery = aliasManager.expand(rawQuery);
+
+        ParsedQuery parsedQuery = parser.parse(expandedQuery);
 
         try {
             List<SearchResult> results = repository.search(parsedQuery);
