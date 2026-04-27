@@ -45,3 +45,4 @@ index.db-wal
 index.db-shm
 
 search_history.json
+aliases.json
