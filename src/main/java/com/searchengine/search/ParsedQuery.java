@@ -6,15 +6,17 @@ public class ParsedQuery {
     private final List<String> contentTerms;
     private final List<String> pathTerms;
     private final String rawQuery;
+    private final boolean hasQualifiers;
 
-    public ParsedQuery(List<String> contentTerms, List<String> pathTerms, String rawQuery) {
+    public ParsedQuery(List<String> contentTerms, List<String> pathTerms, String rawQuery, boolean hasQualifiers) {
         this.contentTerms = contentTerms;
         this.pathTerms = pathTerms;
         this.rawQuery = rawQuery;
+        this.hasQualifiers = hasQualifiers;
     }
 
     public boolean isPlainQuery() {
-        return contentTerms.isEmpty() && pathTerms.isEmpty();
+        return !hasQualifiers;
     }
 
     public List<String> getContentTerms() {

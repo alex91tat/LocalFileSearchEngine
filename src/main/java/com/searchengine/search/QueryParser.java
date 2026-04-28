@@ -17,14 +17,18 @@ public class QueryParser {
         List<String> pathTerms = new ArrayList<>();
         String[] tokens = rawQuery.trim().split("\\s+");
 
+        boolean hasQualifiers = false;
+
         for (String token : tokens) {
             if (token.startsWith("path:")) {
+                hasQualifiers = true;
                 String value = token.substring("path:".length());
                 // don't sanitize path terms — dots are valid in paths
                 if (!value.isBlank()) {
                     pathTerms.add(value.trim());
                 }
             } else if (token.startsWith("content:")) {
+                hasQualifiers = true;
                 String value = token.substring("content:".length());
                 contentTerms.add(sanitize(value));
             } else {
@@ -32,6 +36,6 @@ public class QueryParser {
             }
         }
 
-        return new ParsedQuery(contentTerms, pathTerms, rawQuery);
+        return new ParsedQuery(contentTerms, pathTerms, rawQuery, hasQualifiers);
     }
 }
