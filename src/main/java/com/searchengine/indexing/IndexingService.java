@@ -126,7 +126,8 @@ public class IndexingService {
                     lastModified,
                     "",
                     "",
-                    0.0
+                    0.0,
+                    null
             );
 
             // compute score for metadata-only files
