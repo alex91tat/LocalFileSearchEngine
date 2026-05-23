@@ -26,8 +26,9 @@ public class Main {
         FileCrawler crawler         = new FileCrawler(filter);
         ChangeDetector detector     = new ChangeDetector(repository);
         PlainTextExtractor extractor = new PlainTextExtractor(config.getTextExtensions());
+        ImageExtractor imageExtractor = new ImageExtractor(config.getImageExtensions());
 
-        IndexingService indexingService = new IndexingService(config, crawler, filter, List.of(extractor),
+        IndexingService indexingService = new IndexingService(config, crawler, filter, List.of(extractor, imageExtractor),
                 detector, repository);
 
         AliasManager aliasManager = new AliasManager();
