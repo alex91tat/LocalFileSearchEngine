@@ -24,8 +24,8 @@ public class FileRepository {
     public void save(FileRecord record) throws SQLException {
         checkConnection();
         String insertFile = """
-                INSERT INTO files (path, name, extension, size, last_modified, preview, path_score)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO files (path, name, extension, size, last_modified, preview, path_score, dominant_color)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         String insertFts = """
@@ -43,6 +43,7 @@ public class FileRepository {
             stmtFile.setLong(5, record.getLastModified());
             stmtFile.setString(6, record.getPreview());
             stmtFile.setDouble(7, record.getPathScore());
+            stmtFile.setString(8, record.getDominantColor());
             stmtFile.executeUpdate();
 
             stmtFts.setString(1, record.getPath());
@@ -55,7 +56,8 @@ public class FileRepository {
         checkConnection();
         String updateFile = """
                 UPDATE files
-                SET name = ?, extension = ?, size = ?, last_modified = ?, preview = ?, path_score = ?
+                SET name = ?, extension = ?, size = ?, last_modified = ?, preview = ?, 
+                    path_score = ?, dominant_color = ?
                 WHERE path = ?
                 """;
 
@@ -72,7 +74,8 @@ public class FileRepository {
             stmtFile.setLong(4, record.getLastModified());
             stmtFile.setString(5, record.getPreview());
             stmtFile.setDouble(6, record.getPathScore());
-            stmtFile.setString(7, record.getPath());
+            stmtFile.setString(7, record.getDominantColor());
+            stmtFile.setString(8, record.getPath());
             stmtFile.executeUpdate();
 
             stmtDeleteFts.setString(1, record.getPath());
@@ -121,6 +124,10 @@ public class FileRepository {
             return searchPlain(query.getRawQuery());
         }
 
+        if (!query.getColorTerms().isEmpty()) {
+            return searchByColor(query.getColorTerms());
+        }
+
         if (!query.getContentTerms().isEmpty() && query.getPathTerms().isEmpty()) {
             return searchByContent(query.getContentTerms());
         }
@@ -130,6 +137,33 @@ public class FileRepository {
         }
 
         return searchByContentAndPath(query.getContentTerms(), query.getPathTerms());
+    }
+
+    private List<SearchResult> searchByColor(List<String> colorTerms) throws SQLException {
+        List<SearchResult> results = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("""
+            SELECT path, name, extension, size, last_modified, preview, path_score, dominant_color
+            FROM files WHERE 1=1
+            """);
+
+        for (int i = 0; i < colorTerms.size(); i++) {
+            sql.append(" AND dominant_color = ?");
+        }
+        sql.append(" ORDER BY path_score DESC LIMIT 100");
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql.toString())) {
+            for (int i = 0; i < colorTerms.size(); i++) {
+                stmt.setString(i + 1, colorTerms.get(i).toLowerCase());
+            }
+            ResultSet rs = stmt.executeQuery();
+            int rank = 1;
+            while (rs.next()) {
+                FileRecord record = mapResultSet(rs);
+                results.add(new SearchResult(record, record.getPreview(), rank++));
+            }
+        }
+        return results;
     }
 
     private List<SearchResult> searchPlain(String rawQuery) throws SQLException {
@@ -276,7 +310,8 @@ public class FileRepository {
                 rs.getLong("last_modified"),
                 "",
                 rs.getString("preview"),
-                rs.getDouble("path_score")
+                rs.getDouble("path_score"),
+                rs.getString("dominant_color")
         );
     }
 }
