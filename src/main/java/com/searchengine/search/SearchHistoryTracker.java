@@ -31,12 +31,12 @@ public class SearchHistoryTracker implements SearchObserver {
     public void onSearch(String query) {
         if (query == null || query.isBlank()) return;
 
-        history.add(query);
-
         // keep only last MAX_HISTORY searches
         if (history.size() > MAX_HISTORY) {
             history.remove(0);
         }
+
+        history.add(query);
 
         saveHistory();
     }
