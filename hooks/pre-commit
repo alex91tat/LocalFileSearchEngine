@@ -1,0 +1,9 @@
+#!/bin/sh
+echo "Running compilation check before commit..."
+mvn compile -q
+if [ $? -ne 0 ]; then
+    echo "Compilation failed! Fix errors before committing."
+    exit 1
+fi
+echo "Compilation passed! Proceeding with commit."
+exit 0
