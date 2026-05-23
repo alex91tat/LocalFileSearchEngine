@@ -55,7 +55,8 @@ public class DatabaseManager {
                         size          INTEGER,
                         last_modified INTEGER,
                         preview       TEXT,
-                        path_score    REAL    DEFAULT 0.0
+                        path_score    REAL    DEFAULT 0.0,
+                        dominant_color TEXT   DEFAULT NULL
                     )
                     """);
 
