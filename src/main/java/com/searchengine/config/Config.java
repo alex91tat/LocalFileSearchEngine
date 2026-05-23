@@ -12,6 +12,7 @@ public class Config {
     private List<String> ignoredDirectories;
     private List<String> ignoredExtensions;
     private List<String> textExtensions;
+    private List<String> imageExtensions;
     private String reportFormat;
 
     public Config() {}
@@ -76,6 +77,14 @@ public class Config {
 
     public void setTextExtensions(List<String> textExtensions) {
         this.textExtensions = textExtensions;
+    }
+
+    public List<String> getImageExtensions() {
+        return imageExtensions;
+    }
+
+    public void setImageExtensions(List<String> imageExtensions) {
+        this.imageExtensions = imageExtensions;
     }
 
     public String getReportFormat() {
