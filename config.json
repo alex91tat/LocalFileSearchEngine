@@ -5,5 +5,13 @@
   "ignoredExtensions": ["class", "jar", "exe", "bin", "zip", "tar", "gz", "db", "db-shm", "db-wal"],
   "textExtensions": ["txt", "md", "java", "py", "js", "ts", "html", "css", "xml", "json", "yaml", "yml", "csv", "log"],
   "imageExtensions": ["jpg", "jpeg", "png", "gif", "bmp", "webp"],
-  "reportFormat": "txt"
+  "reportFormat": "txt",
+  "synonyms": {
+    "img": ["image", "photo", "picture"],
+    "doc": ["document", "documentation"],
+    "js": ["javascript"],
+    "py": ["python"],
+    "algo": ["algorithm"],
+    "db": ["database"]
+  }
 }
