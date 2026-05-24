@@ -1,5 +1,7 @@
 package com.searchengine.model;
 
+import com.searchengine.indexing.ChangeDetector.FileStatus;
+
 public class FileRecord {
 
     private long id;
@@ -13,6 +15,7 @@ public class FileRecord {
 
     private double pathScore;
     private String dominantColor;
+    private FileStatus status;
 
 
     public FileRecord(String path, String name, String extension, long size, long lastModified, String content,
@@ -106,6 +109,14 @@ public class FileRecord {
 
     public void setDominantColor(String dominantColor) {
         this.dominantColor = dominantColor;
+    }
+
+    public FileStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(FileStatus status) {
+        this.status = status;
     }
 
     @Override
