@@ -16,6 +16,7 @@ public class CLI {
 
     private final SearchHistoryTracker historyTracker;
     private final AliasManager aliasManager;
+    private final WidgetFactory widgetFactory;
 
 
     public CLI(IndexingService indexingService, SearchService searchService,
@@ -25,6 +26,7 @@ public class CLI {
         this.scanner = new Scanner(System.in);
         this.historyTracker = historyTracker;
         this.aliasManager = aliasManager;
+        this.widgetFactory = new WidgetFactory();
     }
 
     public void start() {
@@ -115,6 +117,12 @@ public class CLI {
 
             List<SearchResult> results = searchService.search(query);
             displayResults(results, query);
+
+            // activate context-aware widgets based on results
+            List<Widget> activeWidgets = widgetFactory.getActiveWidgets(results);
+            for (Widget widget : activeWidgets) {
+                widget.render(results);
+            }
         }
     }
 
