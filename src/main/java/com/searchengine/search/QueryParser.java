@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueryParser {
+    private final QueryProcessor pipeline;
+
+    public QueryParser(QueryProcessor pipeline) {
+        this.pipeline = pipeline;
+    }
+
     private String sanitize(String query) {
         // remove FTS5 special characters that could cause syntax errors
         return query
@@ -38,7 +44,7 @@ public class QueryParser {
                     colorTerms.add(value.trim().toLowerCase());
                 }
             } else {
-                contentTerms.add(sanitize(token));
+                contentTerms.add(pipeline.process(token));
             }
         }
 
