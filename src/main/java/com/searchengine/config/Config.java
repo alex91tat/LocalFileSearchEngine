@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
     private String rootDirectory;
@@ -14,6 +15,7 @@ public class Config {
     private List<String> textExtensions;
     private List<String> imageExtensions;
     private String reportFormat;
+    private Map<String, List<String>> synonyms;
 
     public Config() {}
 
@@ -93,6 +95,14 @@ public class Config {
 
     public void setReportFormat(String reportFormat) {
         this.reportFormat = reportFormat;
+    }
+
+    public Map<String, List<String>> getSynonyms() {
+        return synonyms;
+    }
+
+    public void setSynonyms(Map<String, List<String>> synonyms) {
+        this.synonyms = synonyms;
     }
 
     @Override
