@@ -15,9 +15,9 @@ public class SearchService {
     private final List<SearchObserver> observers = new ArrayList<>();
     private final AliasManager aliasManager;
 
-    public SearchService(FileRepository repository, AliasManager aliasManager) {
+    public SearchService(FileRepository repository, AliasManager aliasManager, QueryParser parser) {
         this.repository = repository;
-        this.parser = new QueryParser();
+        this.parser = parser;
         this.rankingStrategy = null; // set from Main
         this.aliasManager = aliasManager;
     }
