@@ -2,15 +2,16 @@ package com.searchengine.model;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class IndexReport {
     private int totalFilesFound;
-    private int filesIndexed;
-    private int filesSkipped;
-    private int filesFiltered;
-    private int errors;
+    private final AtomicInteger filesIndexed = new AtomicInteger(0);
+    private final AtomicInteger filesSkipped = new AtomicInteger(0);
+    private final AtomicInteger filesFiltered = new AtomicInteger(0);
+    private final AtomicInteger errors = new AtomicInteger(0);
 
     private final LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -18,7 +19,7 @@ public class IndexReport {
 
     public IndexReport() {
         this.startTime = LocalDateTime.now();
-        this.errorLog = new ArrayList<>();
+        this.errorLog = new CopyOnWriteArrayList<>();
     }
 
     public void incrementFound() {
@@ -26,23 +27,23 @@ public class IndexReport {
     }
 
     public void incrementIndexed() {
-        filesIndexed++;
+        filesIndexed.incrementAndGet();
     }
 
     public void incrementSkipped() {
-        filesSkipped++;
+        filesSkipped.incrementAndGet();
     }
 
     public void incrementFiltered() {
-        filesFiltered++;
+        filesFiltered.incrementAndGet();
     }
 
     public void incrementErrors() {
-        errors++;
+        errors.incrementAndGet();
     }
 
     public void logError(String filePath, String reason) {
-        errors++;
+        errors.incrementAndGet();
         errorLog.add(String.format("  [ERROR] %s — %s", filePath, reason));
     }
 
@@ -58,10 +59,10 @@ public class IndexReport {
         sb.append(String.format("Started:   %s%n", startTime.format(fmt)));
         sb.append(String.format("Finished:  %s%n", endTime != null ? endTime.format(fmt) : "N/A"));
         sb.append(String.format("Files found:    %4d%n", totalFilesFound));
-        sb.append(String.format("Files indexed:  %4d%n", filesIndexed));
-        sb.append(String.format("Files skipped:  %4d  (unchanged since last index)%n", filesSkipped));
-        sb.append(String.format("Files filtered: %4d  (ignored by rules)%n", filesFiltered));
-        sb.append(String.format("Errors:         %4d%n", errors));
+        sb.append(String.format("Files indexed:  %4d%n", filesIndexed.get()));
+        sb.append(String.format("Files skipped:  %4d  (unchanged since last index)%n", filesSkipped.get()));
+        sb.append(String.format("Files filtered: %4d  (ignored by rules)%n", filesFiltered.get()));
+        sb.append(String.format("Errors:         %4d%n", errors.get()));
 
         if (!errorLog.isEmpty()) {
             sb.append("Error details:\n");
@@ -76,19 +77,19 @@ public class IndexReport {
     }
 
     public int getFilesIndexed() {
-        return filesIndexed;
+        return filesIndexed.get();
     }
 
     public int getFilesSkipped() {
-        return filesSkipped;
+        return filesSkipped.get();
     }
 
     public int getFilesFiltered() {
-        return filesFiltered;
+        return filesFiltered.get();
     }
 
     public int getErrors() {
-        return errors;
+        return errors.get();
     }
 
     public List<String> getErrorLog() {
