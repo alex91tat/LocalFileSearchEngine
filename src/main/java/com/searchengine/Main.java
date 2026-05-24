@@ -5,10 +5,8 @@ import com.searchengine.config.Config;
 import com.searchengine.indexing.*;
 import com.searchengine.repository.DatabaseManager;
 import com.searchengine.repository.FileRepository;
-import com.searchengine.search.AliasManager;
-import com.searchengine.search.RelevanceRanking;
-import com.searchengine.search.SearchHistoryTracker;
-import com.searchengine.search.SearchService;
+import com.searchengine.search.*;
+
 import java.util.List;
 
 public class Main {
@@ -33,7 +31,19 @@ public class Main {
 
         AliasManager aliasManager = new AliasManager();
 
-        SearchService searchService = new SearchService(repository, aliasManager);
+        QueryProcessor pipeline =
+                new LogicDecorator(
+                        new SynonymDecorator(
+                                new SanitizationDecorator(
+                                        new BaseQueryProcessor()
+                                ),
+                                config.getSynonyms()
+                        )
+                );
+
+        QueryParser queryParser = new QueryParser(pipeline);
+
+        SearchService searchService = new SearchService(repository, aliasManager, queryParser);
 
         SearchHistoryTracker historyTracker = new SearchHistoryTracker();
         searchService.addObserver(historyTracker);
