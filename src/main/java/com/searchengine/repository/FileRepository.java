@@ -171,7 +171,7 @@ public class FileRepository {
         int rank = 1;
 
         String ftsSQL = """
-            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score, f.dominant_color
             FROM files_fts fts
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
@@ -180,7 +180,7 @@ public class FileRepository {
             """;
 
         String nameSQL = """
-            SELECT path, name, extension, size, last_modified, preview, path_score
+            SELECT path, name, extension, size, last_modified, preview, path_score, dominant_color
             FROM files
             WHERE name LIKE ?
             ORDER BY path_score DESC
@@ -218,7 +218,7 @@ public class FileRepository {
         String ftsQuery = String.join(" ", contentTerms);
 
         String sql = """
-            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score, f.dominant_color
             FROM files_fts fts
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
@@ -243,7 +243,7 @@ public class FileRepository {
 
         // build: WHERE path LIKE ? AND path LIKE ? ...
         StringBuilder sql = new StringBuilder("""
-            SELECT path, name, extension, size, last_modified, preview, path_score
+            SELECT path, name, extension, size, last_modified, preview, path_score, dominant_color
             FROM files WHERE 1=1
             """);
 
@@ -273,7 +273,7 @@ public class FileRepository {
         String ftsQuery = String.join(" ", contentTerms);
 
         StringBuilder sql = new StringBuilder("""
-            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score
+            SELECT f.path, f.name, f.extension, f.size, f.last_modified, f.preview, f.path_score, f.dominant_color
             FROM files_fts fts
             JOIN files f ON fts.path = f.path
             WHERE files_fts MATCH ?
