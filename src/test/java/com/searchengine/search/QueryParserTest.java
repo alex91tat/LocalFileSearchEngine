@@ -3,6 +3,8 @@ package com.searchengine.search;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class QueryParserTest {
@@ -10,14 +12,24 @@ class QueryParserTest {
 
     @BeforeEach
     void setUp() {
-        parser = new QueryParser();
+        // build minimal pipeline for testing
+        // empty synonyms map, we only test parsing logic here
+        QueryProcessor pipeline = new LogicDecorator(
+                new SynonymDecorator(
+                        new SanitizationDecorator(
+                                new BaseQueryProcessor()
+                        ),
+                        Collections.emptyMap()
+                )
+        );
+        parser = new QueryParser(pipeline);
     }
 
     @Test
     void testPlainQuery() {
         ParsedQuery result = parser.parse("hello");
         assertTrue(result.isPlainQuery());
-        assertTrue(result.getContentTerms().contains("hello"));
+        assertTrue(result.getContentTerms().contains("hello*"));
         assertTrue(result.getPathTerms().isEmpty());
     }
 
@@ -64,7 +76,6 @@ class QueryParserTest {
 
     @Test
     void testPathWithDot() {
-        // dots must be preserved in path terms
         ParsedQuery result = parser.parse("path:FileRecord.java");
         assertTrue(result.getPathTerms().contains("FileRecord.java"));
     }
@@ -75,5 +86,20 @@ class QueryParserTest {
         ParsedQuery result2 = parser.parse("content:hello path:Documents");
         assertEquals(result1.getPathTerms(), result2.getPathTerms());
         assertEquals(result1.getContentTerms(), result2.getContentTerms());
+    }
+
+    @Test
+    void testColorQualifier() {
+        ParsedQuery result = parser.parse("color:red");
+        assertFalse(result.isPlainQuery());
+        assertTrue(result.getColorTerms().contains("red"));
+        assertTrue(result.getContentTerms().isEmpty());
+        assertTrue(result.getPathTerms().isEmpty());
+    }
+
+    @Test
+    void testColorQualifierLowercase() {
+        ParsedQuery result = parser.parse("color:RED");
+        assertTrue(result.getColorTerms().contains("red"));
     }
 }

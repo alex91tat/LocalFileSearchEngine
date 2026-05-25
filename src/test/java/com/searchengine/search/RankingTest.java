@@ -22,15 +22,15 @@ class RankingTest {
 
         FileRecord recordA = new FileRecord(
                 "/home/user/Charlie.java", "Charlie.java", "java",
-                100, old, "", "", 0.9
+                100, old, "", "", 0.9, null
         );
         FileRecord recordB = new FileRecord(
                 "/home/user/Alice.java", "Alice.java", "java",
-                100, recent, "", "", 0.5
+                100, recent, "", "", 0.5, null
         );
         FileRecord recordC = new FileRecord(
                 "/home/user/Bob.java", "Bob.java", "java",
-                100, medium, "", "", 0.7
+                100, medium, "", "", 0.7, null
         );
 
         resultA = new SearchResult(recordA, "", 1);
